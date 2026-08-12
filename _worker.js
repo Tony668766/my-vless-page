@@ -7,7 +7,7 @@ import { connect } from 'cloudflare:sockets';
 // 1. UUID (保持與您客戶端一致)
 const userID = 'd3b07384-d113-424a-a112-d023147dceec';
 
-// 2. 備用 ProxyIP (若遇到部分邊緣節點無法直連時使用，必須填寫純 IP)
+// 2. 備用 ProxyIP (電信/移動專用反代 IP)
 const proxyIP = '103.200.112.108';
 
 export default {
@@ -100,15 +100,15 @@ async function handleTCPOutBound(remoteSocketWrapper, addressRemote, portRemote,
   }
 
   let tcpSocket;
-  // 安全退回機制：先嘗試直連，直連失敗才調用 ProxyIP
+  // 大陸網路核心修復：有 ProxyIP 時優先走 ProxyIP 中繼，徹底解決超時與閉管問題
   try {
-    tcpSocket = await connectAndWrite(addressRemote, portRemote);
-  } catch (err) {
     if (proxyIP) {
       tcpSocket = await connectAndWrite(proxyIP, portRemote);
     } else {
-      throw err;
+      tcpSocket = await connectAndWrite(addressRemote, portRemote);
     }
+  } catch (err) {
+    tcpSocket = await connectAndWrite(addressRemote, portRemote);
   }
 
   remoteSocketToWS(tcpSocket, webSocket, vlessResponseHeader, isDns);
