@@ -4,10 +4,10 @@ import { connect } from 'cloudflare:sockets';
 // VLESS over WebSocket for Cloudflare Pages
 // ===================================================
 
+// 1. UUID (保持與您客戶端一致)
 const userID = 'd3b07384-d113-424a-a112-d023147dceec';
 
-// ⚠️ 必須填寫「純數字 IP」，切勿填寫域名！
-// 這裡提供社群最穩定的反代 IP（若依然不行可替換為 8.219.193.30 或 103.200.112.108）
+// 2. 備用 ProxyIP (若遇到部分邊緣節點無法直連時使用，必須填寫純 IP)
 const proxyIP = '154.213.16.10';
 
 export default {
@@ -100,16 +100,15 @@ async function handleTCPOutBound(remoteSocketWrapper, addressRemote, portRemote,
   }
 
   let tcpSocket;
-  // 如果設定了 ProxyIP，直接透過 ProxyIP 轉發出站，避免直連阻斷
+  // 安全退回機制：先嘗試直連，直連失敗才調用 ProxyIP
   try {
+    tcpSocket = await connectAndWrite(addressRemote, portRemote);
+  } catch (err) {
     if (proxyIP) {
       tcpSocket = await connectAndWrite(proxyIP, portRemote);
     } else {
-      tcpSocket = await connectAndWrite(addressRemote, portRemote);
+      throw err;
     }
-  } catch (err) {
-    // 若代理連線失敗，備用直連
-    tcpSocket = await connectAndWrite(addressRemote, portRemote);
   }
 
   remoteSocketToWS(tcpSocket, webSocket, vlessResponseHeader, isDns);
