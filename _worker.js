@@ -1,3 +1,4 @@
+import { connect } from 'cloudflare:sockets';
 // ===================================================
 // VLESS over WebSocket for Cloudflare Pages / Workers
 // ===================================================
