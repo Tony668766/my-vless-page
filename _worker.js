@@ -5,7 +5,7 @@ import { connect } from 'cloudflare:sockets';
 // ===================================================
 
 const userID = 'd3b07384-d113-424a-a112-d023147dceec';
-const proxyIP = '154.213.16.10'; // 反代 IP
+const proxyIP = 'cdn.xeon.my.id';
 
 export default {
   async fetch(request, env, ctx) {
