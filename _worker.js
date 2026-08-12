@@ -6,7 +6,7 @@
 const userID = 'd3b07384-d113-424a-a112-d023147dceec';
 
 // 2. 備用 ProxyIP（可留空，若邊緣網路被阻擋可填入第三方轉發 IP）
-const proxyIP = 'proxyip.fxxk.dedyn.io';
+const proxyIP = '154.213.16.10';
 
 export default {
   async fetch(request, env, ctx) {
