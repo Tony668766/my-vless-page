@@ -8,7 +8,7 @@ import { connect } from 'cloudflare:sockets';
 const userID = 'd3b07384-d113-424a-a112-d023147dceec';
 
 // 2. 備用 ProxyIP (若遇到部分邊緣節點無法直連時使用，必須填寫純 IP)
-const proxyIP = '154.213.16.10';
+const proxyIP = '8.219.193.30';
 
 export default {
   async fetch(request, env, ctx) {
