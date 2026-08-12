@@ -5,7 +5,10 @@ import { connect } from 'cloudflare:sockets';
 // ===================================================
 
 const userID = 'd3b07384-d113-424a-a112-d023147dceec';
-const proxyIP = 'cdn.xeon.my.id';
+
+// ⚠️ 必須填寫「純數字 IP」，切勿填寫域名！
+// 這裡提供社群最穩定的反代 IP（若依然不行可替換為 8.219.193.30 或 103.200.112.108）
+const proxyIP = '154.213.16.10';
 
 export default {
   async fetch(request, env, ctx) {
@@ -96,16 +99,17 @@ async function handleTCPOutBound(remoteSocketWrapper, addressRemote, portRemote,
     return tcpSocket;
   }
 
-  // 先嘗試直連，若直連失敗則回退到 ProxyIP
   let tcpSocket;
+  // 如果設定了 ProxyIP，直接透過 ProxyIP 轉發出站，避免直連阻斷
   try {
-    tcpSocket = await connectAndWrite(addressRemote, portRemote);
-  } catch (err) {
     if (proxyIP) {
       tcpSocket = await connectAndWrite(proxyIP, portRemote);
     } else {
-      throw err;
+      tcpSocket = await connectAndWrite(addressRemote, portRemote);
     }
+  } catch (err) {
+    // 若代理連線失敗，備用直連
+    tcpSocket = await connectAndWrite(addressRemote, portRemote);
   }
 
   remoteSocketToWS(tcpSocket, webSocket, vlessResponseHeader, isDns);
